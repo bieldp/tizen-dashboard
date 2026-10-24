@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gabriel's Hub — Smart TV Dashboard</title>
+  <style>
+    :root {
+      --bg-deep: #090b10;
+      --bg-surface: rgba(22, 27, 38, 0.78);
+      --bg-surface-hover: rgba(34, 42, 58, 0.92);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: #ffffff;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-glow: rgba(56, 189, 248, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient dynamic backdrop */
+    .ambient-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 18% 18%, var(--ambient-1, rgba(229, 9, 20, 0.22)) 0%, transparent 50%),
+        radial-gradient(circle at 82% 24%, var(--ambient-2, rgba(0, 168, 225, 0.18)) 0%, transparent 55%),
+        radial-gradient(circle at 50% 90%, rgba(15, 23, 42, 0.95) 0%, #090b10 100%);
+      transition: background 0.4s ease;
+    }
+
+    .dashboard {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 100vw;
+      height: 100vh;
+      padding: 3.6vh 4.5vw 3.2vh;
+    }
+
+    /* Top Bar: Brand + Weather + Clock */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+    }
+
+    .brand-pill {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.8vh 1.4vw;
+      margin-right: 1.2vw;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 12px #38bdf8;
+      margin-right: 0.7vw;
+    }
+
+    .brand-title {
+      font-size: 1.35vw;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 1.05vw;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .status-cluster {
+      display: flex;
+      align-items: center;
+    }
+
+    .weather-pill {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 0.9vh 1.3vw;
+      margin-right: 1.8vw;
+    }
+
+    .weather-icon {
+      font-size: 1.7vw;
+      margin-right: 0.7vw;
+    }
+
+    .weather-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .weather-temp {
+      font-size: 1.3vw;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .weather-desc {
+      font-size: 0.85vw;
+      color: var(--text-secondary);
+    }
+
+    .clock-cluster {
+      text-align: right;
+    }
+
+    .clock-time {
+      font-size: 2.5vw;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .clock-date {
+      font-size: 0.95vw;
+      color: var(--text-secondary);
+      margin-top: 0.3vh;
+      font-weight: 500;
+    }
+
+    /* Hero Spotlight Banner */
+    .hero-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.78) 0%, rgba(15, 23, 42, 0.55) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 2.6vh 2.8vw;
+      margin: 1.2vh 0;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      transition: border-color 0.25s ease;
+    }
+
+    .hero-left {
+      max-width: 62%;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-size: 0.8vw;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.4vh 0.8vw;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.18);
+      color: #38bdf8;
+      margin-bottom: 1vh;
+    }
+
+    .hero-title {
+      font-size: 2.3vw;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6vh;
+    }
+
+    .hero-desc {
+      font-size: 1.1vw;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-btn {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-primary);
+      border-radius: 16px;
+      padding: 1.4vh 1.6vw;
+      margin-left: 1vw;
+      font-size: 1.05vw;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .hero-btn-primary {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .hero-btn:focus,
+    .hero-btn.is-focused {
+      transform: scale(1.06);
+      border-color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25), 0 14px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Section Headers */
+    .section-block {
+      margin-top: 0.6vh;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.4vh;
+    }
+
+    .section-title {
+      font-size: 1.05vw;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-secondary);
+    }
+
+    .section-hint {
+      font-size: 0.9vw;
+      color: var(--text-muted);
+    }
+
+    /* Streaming Services Grid (7 Cards) */
+    .apps-row {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+
+    .app-card {
+      position: relative;
+      width: 12.1vw;
+      height: 21.5vh;
+      border-radius: 22px;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-subtle);
+      padding: 1.8vh 1.2vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      outline: none;
+      overflow: hidden;
+      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .app-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: var(--card-accent, #38bdf8);
+      opacity: 0.85;
+    }
+
+    .app-card:focus,
+    .app-card.is-focused {
+      transform: translateY(-8px) scale(1.065);
+      border-color: #ffffff;
+      background: var(--bg-surface-hover);
+      box-shadow:
+        0 0 0 4px rgba(255, 255, 255, 0.22),
+        0 18px 40px -8px var(--card-glow, rgba(0, 0, 0, 0.85));
+      z-index: 5;
+    }
+
+    .app-logo-box {
+      width: 4.2vw;
+      height: 4.2vw;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.55vw;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      background: var(--card-brand-bg, #1e293b);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .app-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-name {
+      font-size: 1.2vw;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.3vh;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .app-tag {
+      font-size: 0.82vw;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* Inputs & Quick Utilities Row */
+    .inputs-row {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+
+    .input-card {
+      width: 14.3vw;
+      height: 11.5vh;
+      border-radius: 18px;
+      background: rgba(20, 26, 38, 0.72);
+      border: 2px solid var(--border-subtle);
+      padding: 1.4vh 1.3vw;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .input-card:focus,
+    .input-card.is-focused {
+      transform: translateY(-4px) scale(1.045);
+      border-color: #ffffff;
+      background: rgba(36, 46, 66, 0.95);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2), 0 12px 28px rgba(0, 0, 0, 0.65);
+      z-index: 5;
+    }
+
+    .input-icon {
+      width: 2.8vw;
+      height: 2.8vw;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3vw;
+      font-weight: 800;
+      margin-right: 0.9vw;
+      color: #38bdf8;
+      flex-shrink: 0;
+    }
+
+    .input-text {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .input-name {
+      font-size: 1.08vw;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .input-sub {
+      font-size: 0.8vw;
+      color: var(--text-secondary);
+      margin-top: 0.2vh;
+    }
+
+    /* Footer Bar with Color Remote Key Legend */
+    .footer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1vh;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 0.88vw;
+      color: var(--text-secondary);
+    }
+
+    .remote-hints {
+      display: flex;
+      align-items: center;
+    }
+
+    .remote-hint-item {
+      display: flex;
+      align-items: center;
+      margin-right: 1.8vw;
+    }
+
+    .color-dot {
+      width: 14px;
+      height: 8px;
+      border-radius: 4px;
+      margin-right: 0.45vw;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-green { background: #22c55e; }
+    .dot-yellow { background: #eab308; }
+    .dot-blue { background: #3b82f6; }
+
+    /* Modal for App Discovery / Custom App ID Mapping */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(5, 7, 12, 0.86);
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 5vh 6vw;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-panel {
+      width: 78vw;
+      max-height: 82vh;
+      background: #111622;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 3vh 3vw;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2vh;
+    }
+
+    .modal-title {
+      font-size: 1.6vw;
+      font-weight: 800;
+    }
+
+    .modal-list {
+      overflow-y: auto;
+      display: flex;
+      flex-wrap: wrap;
+      max-height: 60vh;
+    }
+
+    .installed-app-item {
+      width: 22.5vw;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 1.2vh 1.1vw;
+      margin: 0.6vh 0.6vw;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .installed-app-item:focus,
+    .installed-app-item.is-focused {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      transform: scale(1.03);
+    }
+
+    .installed-app-name {
+      font-size: 1.05vw;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .installed-app-id {
+      font-size: 0.78vw;
+      color: var(--text-secondary);
+      margin-top: 0.3vh;
+      word-break: break-all;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 4vh;
+      right: 4vw;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      color: #f8fafc;
+      padding: 1.4vh 1.8vw;
+      border-radius: 14px;
+      font-size: 1.05vw;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-backdrop" id="ambientBackdrop"></div>
+
+  <main class="dashboard" id="spatialContainer" role="application" aria-label="Smart TV Home Dashboard">
+    <!-- TOP BAR -->
+    <header class="top-bar">
+      <div class="brand-cluster">
+        <div class="brand-pill">
+          <span class="brand-dot"></span>
+          <span class="brand-title">Gabriel's Hub</span>
+        </div>
+        <span class="brand-subtitle" id="tvModelLabel">Samsung UE40MU6120 • 4K UHD</span>
+      </div>
+
+      <div class="status-cluster">
+        <div class="weather-pill" id="weatherWidget">
+          <span class="weather-icon" id="weatherIcon">⛅</span>
+          <div class="weather-info">
+            <span class="weather-temp" id="weatherTemp">--°C</span>
+            <span class="weather-desc" id="weatherDesc">Local Weather</span>
+          </div>
+        </div>
+
+        <div class="clock-cluster">
+          <div class="clock-time" id="clockTime">12:00</div>
+          <div class="clock-date" id="clockDate">Loading date...</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO SPOTLIGHT BANNER -->
+    <section class="hero-banner">
+      <div class="hero-left">
+        <span class="hero-badge" id="heroBadge">Ready to Stream</span>
+        <h1 class="hero-title" id="heroTitle">Welcome home, Gabriel</h1>
+        <p class="hero-desc" id="heroDesc">
+          Select any streaming service below or press the Red button on your remote to jump straight into ad-free 4K YouTube.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button
+          class="hero-btn hero-btn-primary focusable"
+          tabindex="0"
+          data-action="tizentube"
+          data-title="TizenTube (Ad-Free 4K YouTube)"
+          data-desc="Launch YouTube with integrated SponsorBlock, DeArrow, and zero ads via TizenBrew."
+          data-ambient1="rgba(239, 68, 68, 0.28)"
+          data-ambient2="rgba(185, 28, 28, 0.2)"
+        >
+          ▶ Launch TizenTube
+        </button>
+        <button
+          class="hero-btn focusable"
+          tabindex="-1"
+          data-action="discover-apps"
+          data-title="Installed TV Apps Browser"
+          data-desc="Inspect and launch every native Tizen application installed on your UE40MU6120."
+          data-ambient1="rgba(56, 189, 248, 0.25)"
+          data-ambient2="rgba(59, 130, 246, 0.18)"
+        >
+          ⊞ All Installed Apps
+        </button>
+      </div>
+    </section>
+
+    <!-- STREAMING SERVICES ROW -->
+    <section class="section-block">
+      <div class="section-header">
+        <span class="section-title">Streaming Services</span>
+        <span class="section-hint" id="focusedServiceHint">Use D-Pad arrows to navigate • Press OK to launch</span>
+      </div>
+
+      <div class="apps-row" id="streamingRow">
+        <!-- 1. TizenTube (YouTube Ad-Free) -->
+        <div
+          class="app-card focusable"
+          tabindex="-1"
+          role="button"
+          data-service="youtube"
+          data-action="tizentube"
+          data-title="YouTube (TizenTube)"
+          data-desc="Ad-free 4K YouTube with SponsorBlock & DeArrow powered by TizenBrew."
+          data-ambient1="rgba(255, 0, 51, 0.28)"
+          data-ambient2="rgba(220, 38, 38, 0.18)"
+          style="--card-accent: #ff0033; --card-brand-bg: linear-gradient(135deg, #ff0033, #b91c1c); --card-glow: rgba(255, 0, 51, 0.45);"
+        >
+          <div class="app-logo-box">▶ YT</div>
+          <div class="app-meta">
+            <div class="app-name">YouTube</div>
+            <div class="app-tag">TizenTube • No Ads</div>
+          </div>
+        </div>
+
+        <!-- 2. Netflix -->
+        <div
+          class="app-card focusable"
+          tabindex="-1"
+          role="button"
+          data-service="netflix"
+          data-action="native-app"
+          data-keywords="netflix"
+          data-fallback-ids="org.tizen.netflix-app,11101200001,3201907018807"
+          data-url="https://www.netflix.com/browse"
+          data-title="Netflix"
+          data-desc="Watch Netflix movies, series, and 4K UHD originals."
+          data-ambient1="rgba(229, 9, 20, 0.30)"
+          data-ambient2="rgba(153, 27, 27, 0.20)"
+          style="--card-accent: #e50914; --card-brand-bg: linear-gradient(135deg, #e50914, #831010); --card-glow: rgba(229, 9, 20, 0.48);"
+        >
+          <div class="app-logo-box">N</div>
+          <div class="app-meta">
+            <div class="app-name">Netflix</div>
+            <div class="app-tag">4K UHD • Native</div>
+          </div>
+        </div>
+
+        <!-- 3. Prime Video -->
+        <div
+          class="app-card focusable"
+          tabindex="-1"
+          role="button"
+          data-service="prime"
+          data-action="native-app"
+          data-keywords="amazon,primevideo,ignition,lovefilm"
+          data-fallback-ids="org.tizen.ignition,3201512006785,111299001912"
+          data-url="https://www.primevideo.com"
+          data-title="Amazon Prime Video"
+          data-desc="Stream Amazon Originals, movies, live sports, and channels."
+          data-ambient1="rgba(0, 168, 225, 0.28)"
+          data-ambient2="rgba(2, 132, 199, 0.20)"
+          style="--card-accent: #00a8e1; --card-brand-bg: linear-gradient(135deg, #00a8e1, #0369a1); --card-glow: rgba(0, 168, 225, 0.45);"
+        >
+          <div class="app-logo-box">prime</div>
+          <div class="app-meta">
+            <div class="app-name">Prime Video</div>
+            <div class="app-tag">4K HDR • Native</div>
+          </div>
+        </div>
+
+        <!-- 4. Disney+ -->
+        <div
+          class="app-card focusable"
+          tabindex="-1"
+          role="button"
+          data-service="disney"
+          data-action="native-app"
+          data-keywords="disney"
+          data-fallback-ids="MCmYXNxgcu.DisneyPlus,3201901017640"
+          data-url="https://www.disneyplus.com"
+          data-title="Disney+"
+          data-desc="Disney, Pixar, Marvel, Star Wars, National Geographic, and Star."
+          data-ambient1="rgba(17, 60, 207, 0.32)"
+          data-ambient2="rgba(6, 182, 212, 0.20)"
+          style="--card-accent: #38bdf8; --card-brand-bg: linear-gradient(135deg, #113ccf, #071854); --card-glow: rgba(56, 189, 248, 0.45);"
+        >
+          <div class="app-logo-box">D+</div>
+          <div class="app-meta">
+            <div class="app-name">Disney+</div>
+            <div class="app-tag">4K UHD • Native</div>
+          </div>
+        </div>
+
+        <!-- 5. Apple TV+ -->
+        <div
+          class="app-card focusable"
+          tabindex="-1"
+          role="button"
+          data-service="appletv"
+          data-action="native-app"
+          data-keywords="apple,appletv"
+          data-fallback-ids="com.apple.atve.tizen.appletv,3201807016597"
+          data-url="https://tv.apple.com"
+          data-title="Apple TV+"
+          data-desc="Apple Original series, films, MLS Season Pass, and your library."
+          data-ambient1="rgba(148, 163, 184, 0.25)"
+          data-ambient2="rgba(71, 85, 105, 0.22)"
+          style="--card-accent: #e2e8f0; --card-brand-bg: linear-gradient(135deg, #334155, #0f172a); --card-glow: rgba(226, 232, 240, 0.38);"
+        >
+          <div class="app-logo-box">tv+</div>
+          <div class="app-meta">
+            <div class="app-name">Apple TV+</div>
+            <div class="app-tag">Originals & Store</div>
+          </div>
+        </div>
+
+        <!-- 6. Paramount+ -->
+        <div
+          class="app-card focusable"
+          tabindex="-1"
+          role="button"
+          data-service="paramount"
+          data-action="native-app"
+          data-keywords="paramount"
+          data-fallback-ids="3201710014981,rJeHak5zST.ParamountPlus"
+          data-url="https://www.paramountplus.com"
+          data-title="Paramount+"
+          data-desc="Blockbuster movies, new originals, SHOWTIME, and CBS library."
+          data-ambient1="rgba(0, 100, 255, 0.30)"
+          data-ambient2="rgba(37, 99, 235, 0.22)"
+          style="--card-accent: #0064ff; --card-brand-bg: linear-gradient(135deg, #0064ff, #1e3a8a); --card-glow: rgba(0, 100, 255, 0.48);"
+        >
+          <div class="app-logo-box">P+</div>
+          <div class="app-meta">
+            <div class="app-name">Paramount+</div>
+            <div class="app-tag">Movies & Series</div>
+          </div>
+        </div>
+
+        <!-- 7. NOW TV -->
+        <div
+          class="app-card focusable"
+          tabindex="-1"
+          role="button"
+          data-service="nowtv"
+          data-action="native-app"
+          data-keywords="now tv,nowtv,sky"
+          data-fallback-ids="3201601007250,111299002145"
+          data-url="https://www.nowtv.com"
+          data-title="NOW TV"
+          data-desc="Sky Cinema, Sky Entertainment, and live Sky Sports channels."
+          data-ambient1="rgba(16, 185, 129, 0.26)"
+          data-ambient2="rgba(5, 150, 105, 0.18)"
+          style="--card-accent: #10b981; --card-brand-bg: linear-gradient(135deg, #059669, #064e3b); --card-glow: rgba(16, 185, 129, 0.42);"
+        >
+          <div class="app-logo-box">NOW</div>
+          <div class="app-meta">
+            <div class="app-name">NOW TV</div>
+            <div class="app-tag">Cinema & Sports</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HDMI INPUT SWITCHER & SYSTEM UTILITIES ROW -->
+    <section class="section-block">
+      <div class="section-header">
+        <span class="section-title">HDMI Inputs, Live TV & Controls</span>
+        <span class="section-hint">Direct source switching for UE40MU6120</span>
+      </div>
+
+      <div class="inputs-row">
+        <div
+          class="input-card focusable"
+          tabindex="-1"
+          role="button"
+          data-action="source"
+          data-source="HDMI1"
+          data-keywords="hdmi1,hdmi 1,source"
+          data-title="HDMI 1 Input"
+          data-desc="Switch your Samsung UE40MU6120 directly to HDMI 1."
+        >
+          <div class="input-icon">H1</div>
+          <div class="input-text">
+            <div class="input-name">HDMI 1</div>
+            <div class="input-sub">External Device 1</div>
+          </div>
+        </div>
+
+        <div
+          class="input-card focusable"
+          tabindex="-1"
+          role="button"
+          data-action="source"
+          data-source="HDMI2"
+          data-keywords="hdmi2,hdmi 2,source"
+          data-title="HDMI 2 Input"
+          data-desc="Switch your Samsung UE40MU6120 directly to HDMI 2."
+        >
+          <div class="input-icon">H2</div>
+          <div class="input-text">
+            <div class="input-name">HDMI 2</div>
+            <div class="input-sub">External Device 2</div>
+          </div>
+        </div>
+
+        <div
+          class="input-card focusable"
+          tabindex="-1"
+          role="button"
+          data-action="source"
+          data-source="HDMI3"
+          data-keywords="hdmi3,hdmi 3,source"
+          data-title="HDMI 3 (ARC)"
+          data-desc="Switch your Samsung UE40MU6120 directly to HDMI 3 (ARC)."
+        >
+          <div class="input-icon">H3</div>
+          <div class="input-text">
+            <div class="input-name">HDMI 3</div>
+            <div class="input-sub">Audio Return / Aux</div>
+          </div>
+        </div>
+
+        <div
+          class="input-card focusable"
+          tabindex="-1"
+          role="button"
+          data-action="livetv"
+          data-keywords="tv-viewer,livetv,broadcast"
+          data-title="Live Broadcast TV"
+          data-desc="Switch to aerial/cable live broadcast tuner (org.tizen.tv-viewer)."
+        >
+          <div class="input-icon">TV</div>
+          <div class="input-text">
+            <div class="input-name">Live TV</div>
+            <div class="input-sub">Freeview / Tuner</div>
+          </div>
+        </div>
+
+        <div
+          class="input-card focusable"
+          tabindex="-1"
+          role="button"
+          data-action="browser"
+          data-keywords="browser"
+          data-title="Tizen Web Browser"
+          data-desc="Open the full Samsung Tizen Internet Browser."
+        >
+          <div class="input-icon">🌐</div>
+          <div class="input-text">
+            <div class="input-name">Web Browser</div>
+            <div class="input-sub">Internet</div>
+          </div>
+        </div>
+
+        <div
+          class="input-card focusable"
+          tabindex="-1"
+          role="button"
+          data-action="tizenbrew-menu"
+          data-title="TizenBrew Settings"
+          data-desc="Open the TizenBrew module manager and settings menu."
+        >
+          <div class="input-icon">⚙</div>
+          <div class="input-text">
+            <div class="input-name">TizenBrew</div>
+            <div class="input-sub">Modules & Config</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER BAR -->
+    <footer class="footer-bar">
+      <div class="remote-hints">
+        <div class="remote-hint-item">
+          <span class="color-dot dot-red"></span>
+          <span><strong>Red:</strong> Launch TizenTube</span>
+        </div>
+        <div class="remote-hint-item">
+          <span class="color-dot dot-green"></span>
+          <span><strong>Green:</strong> Netflix</span>
+        </div>
+        <div class="remote-hint-item">
+          <span class="color-dot dot-yellow"></span>
+          <span><strong>Yellow:</strong> All Installed Apps</span>
+        </div>
+        <div class="remote-hint-item">
+          <span class="color-dot dot-blue"></span>
+          <span><strong>Blue:</strong> TizenBrew Menu</span>
+        </div>
+      </div>
+      <div id="statusFooterText">TizenBrew Connected • Auto-Launch Enabled</div>
+    </footer>
+  </main>
+
+  <!-- ALL INSTALLED APPS MODAL -->
+  <div class="modal-backdrop" id="appsModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="modalTitle">Installed Apps on Your Samsung UE40MU6120</div>
+          <div style="font-size: 0.9vw; color: #94a3b8; margin-top: 0.4vh;">
+            Click any app to launch it immediately, or press BACK / RETURN on your remote to close.
+          </div>
+        </div>
+        <button class="hero-btn focusable-modal" id="closeModalBtn" tabindex="-1">✕ Close</button>
+      </div>
+      <div class="modal-list" id="installedAppsList"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toastMsg"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var installedApps = [];
+      var tbSocket = null;
+      var tbModules = [];
+      var modalOpen = false;
+      var toastTimer = null;
+
+      // 1. Toast Helper
+      function showToast(msg) {
+        var el = document.getElementById("toastMsg");
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add("visible");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          el.classList.remove("visible");
+        }, 3800);
+      }
+
+      // 2. Clock & Date Updater
+      function updateClock() {
+        var now = new Date();
+        var hours = String(now.getHours());
+        var mins = String(now.getMinutes());
+        if (hours.length < 2) hours = "0" + hours;
+        if (mins.length < 2) mins = "0" + mins;
+        document.getElementById("clockTime").textContent = hours + ":" + mins;
+
+        var options = { weekday: "short", day: "numeric", month: "short" };
+        try {
+          document.getElementById("clockDate").textContent = now.toLocaleDateString("en-GB", options);
+        } catch (e) {
+          document.getElementById("clockDate").textContent = now.toDateString();
+        }
+      }
+      updateClock();
+      setInterval(updateClock, 10000);
+
+      // 3. Weather Widget (Open-Meteo API, default London/UK, no API key required)
+      function fetchWeather() {
+        var url = "https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&current_weather=true";
+        try {
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", url, true);
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              try {
+                var data = JSON.parse(xhr.responseText);
+                if (data && data.current_weather) {
+                  var temp = Math.round(data.current_weather.temperature);
+                  var code = data.current_weather.weathercode;
+                  var desc = "Clear Sky";
+                  var icon = "☀️";
+                  if (code >= 1 && code <= 3) { desc = "Partly Cloudy"; icon = "⛅"; }
+                  else if (code >= 45 && code <= 48) { desc = "Foggy"; icon = "🌫️"; }
+                  else if (code >= 51 && code <= 67) { desc = "Rain"; icon = "🌧️"; }
+                  else if (code >= 71 && code <= 77) { desc = "Snow"; icon = "❄️"; }
+                  else if (code >= 80 && code <= 99) { desc = "Showers"; icon = "🌦️"; }
+
+                  document.getElementById("weatherTemp").textContent = temp + "°C";
+                  document.getElementById("weatherDesc").textContent = desc;
+                  document.getElementById("weatherIcon").textContent = icon;
+                }
+              } catch (err) {}
+            }
+          };
+          xhr.send();
+        } catch (e) {}
+      }
+      fetchWeather();
+      setInterval(fetchWeather, 15 * 60 * 1000);
+
+      // 4. Register Samsung TV Remote Keys
+      function registerRemoteKeys() {
+        if (typeof tizen !== "undefined" && tizen.tvinputdevice) {
+          var keys = [
+            "ColorF0Red",
+            "ColorF1Green",
+            "ColorF2Yellow",
+            "ColorF3Blue",
+            "MediaPlay",
+            "MediaPause",
+            "MediaPlayPause",
+            "Info"
+          ];
+          for (var i = 0; i < keys.length; i++) {
+            try {
+              tizen.tvinputdevice.registerKey(keys[i]);
+            } catch (e) {}
+          }
+        }
+      }
+      registerRemoteKeys();
+
+      // 5. Discover Installed Native Tizen Apps on UE40MU6120
+      function loadInstalledTizenApps() {
+        if (typeof tizen !== "undefined" && tizen.application && tizen.application.getAppsInfo) {
+          try {
+            tizen.application.getAppsInfo(
+              function (apps) {
+                installedApps = apps || [];
+                document.getElementById("statusFooterText").textContent =
+                  installedApps.length + " TV Apps Indexed • TizenBrew Active";
+              },
+              function (err) {
+                console.warn("getAppsInfo error:", err);
+              }
+            );
+          } catch (e) {}
+        }
+      }
+      loadInstalledTizenApps();
+
+      // 6. Connect to TizenBrew Local WebSocket Service (ws://127.0.0.1:8081)
+      function connectTizenBrewWS() {
+        try {
+          tbSocket = new WebSocket("ws://127.0.0.1:8081");
+          tbSocket.onopen = function () {
+            tbSocket.send(JSON.stringify({ type: 4, payload: true })); // Events.GetModules = 4
+          };
+          tbSocket.onmessage = function (ev) {
+            try {
+              var msg = JSON.parse(ev.data);
+              if (msg.type === 4 && Array.isArray(msg.payload)) {
+                tbModules = msg.payload;
+              }
+            } catch (e) {}
+          };
+        } catch (e) {}
+      }
+      connectTizenBrewWS();
+
+      // 7. Launch TizenTube via TizenBrew Service
+      function launchTizenTube() {
+        showToast("Launching TizenTube (Ad-Free YouTube)...");
+        var ttMod = null;
+        for (var i = 0; i < tbModules.length; i++) {
+          if (
+            tbModules[i].fullName === "npm/@foxreis/tizentube" ||
+            (tbModules[i].name && tbModules[i].name.indexOf("tizentube") !== -1)
+          ) {
+            ttMod = tbModules[i];
+            break;
+          }
+        }
+
+        if (!ttMod) {
+          ttMod = {
+            fullName: "npm/@foxreis/tizentube",
+            name: "@foxreis/tizentube",
+            appPath: "https://www.youtube.com/tv",
+            moduleType: "npm",
+            packageType: "mods",
+            mainFile: "dist/index.js",
+            keys: ["ColorF0Red", "ColorF1Green", "ColorF2Yellow", "ColorF3Blue"]
+          };
+        }
+
+        if (tbSocket && tbSocket.readyState === 1) {
+          tbSocket.send(JSON.stringify({ type: 5, payload: ttMod })); // Events.LaunchModule = 5
+          setTimeout(function () {
+            window.location.href = ttMod.appPath || "https://www.youtube.com/tv";
+          }, 180);
+        } else {
+          window.location.href = "https://www.youtube.com/tv";
+        }
+      }
+
+      // 8. Smart Native App Launcher (Matches by discovered name/ID, then fallback IDs, then URL)
+      function launchNativeService(cardEl) {
+        var title = cardEl.getAttribute("data-title") || "App";
+        var keywords = (cardEl.getAttribute("data-keywords") || "").toLowerCase().split(",");
+        var fallbackIds = (cardEl.getAttribute("data-fallback-ids") || "").split(",");
+        var webUrl = cardEl.getAttribute("data-url");
+        var serviceKey = cardEl.getAttribute("data-service");
+
+        // Check if user saved a custom appId override in localStorage
+        var savedId = serviceKey ? localStorage.getItem("custom_appid_" + serviceKey) : null;
+
+        if (typeof tizen !== "undefined" && tizen.application) {
+          // 1) Try saved override first
+          if (savedId) {
+            try {
+              showToast("Opening " + title + "...");
+              tizen.application.launch(savedId, function () {}, function () {
+                localStorage.removeItem("custom_appid_" + serviceKey);
+              });
+              return;
+            } catch (e) {}
+          }
+
+          // 2) Search live installedApps list from getAppsInfo
+          for (var i = 0; i < installedApps.length; i++) {
+            var app = installedApps[i];
+            var appName = (app.name || "").toLowerCase();
+            var appId = (app.id || "").toLowerCase();
+            for (var k = 0; k < keywords.length; k++) {
+              var kw = keywords[k].trim();
+              if (kw && (appName.indexOf(kw) !== -1 || appId.indexOf(kw) !== -1)) {
+                showToast("Launching " + app.name + "...");
+                tizen.application.launch(
+                  app.id,
+                  function () {},
+                  function (err) {
+                    showToast("Launch error: " + err.message);
+                  }
+                );
+                return;
+              }
+            }
+          }
+
+          // 3) Try known Samsung Tizen App IDs sequentially
+          var idx = 0;
+          function tryNextFallback() {
+            if (idx >= fallbackIds.length) {
+              if (webUrl) {
+                showToast("Opening " + title + " Web App...");
+                window.location.href = webUrl;
+              } else {
+                showToast(title + " not found. Use 'All Installed Apps' to pick it.");
+              }
+              return;
+            }
+            var candidateId = fallbackIds[idx++].trim();
+            if (!candidateId) return tryNextFallback();
+            try {
+              tizen.application.launch(
+                candidateId,
+                function () {
+                  showToast("Launching " + title + "...");
+                },
+                function () {
+                  tryNextFallback();
+                }
+              );
+            } catch (e) {
+              tryNextFallback();
+            }
+          }
+          tryNextFallback();
+        } else if (webUrl) {
+          showToast("Opening " + title + "...");
+          window.open(webUrl, "_blank");
+        }
+      }
+
+      // 9. Switch TV Input Source (HDMI 1/2/3 or Live TV)
+      function switchTVSource(sourceName, cardEl) {
+        showToast("Switching to " + sourceName + "...");
+        if (typeof tizen !== "undefined") {
+          // Try tizen.tvwindow API if available
+          if (tizen.tvwindow && tizen.tvwindow.setSource) {
+            try {
+              tizen.tvwindow.setSource(
+                { type: "HDMI", number: parseInt(sourceName.replace("HDMI", ""), 10) || 1 },
+                function () {
+                  try { tizen.application.getCurrentApplication().hide(); } catch (e) {}
+                },
+                function () {
+                  launchNativeService(cardEl);
+                }
+              );
+              return;
+            } catch (e) {}
+          }
+          // Fallback: launch org.tizen.tv-viewer with source AppControl
+          if (tizen.application && tizen.application.launchAppControl) {
+            try {
+              var appControl = new tizen.ApplicationControl(
+                "http://tizen.org/appcontrol/operation/view",
+                null,
+                null,
+                null,
+                [new tizen.ApplicationControlData("source", [sourceName])]
+              );
+              tizen.application.launchAppControl(
+                appControl,
+                "org.tizen.tv-viewer",
+                function () {},
+                function () {
+                  launchNativeService(cardEl);
+                }
+              );
+              return;
+            } catch (e) {}
+          }
+        }
+        launchNativeService(cardEl);
+      }
+
+      // 10. Installed Apps Discovery Modal
+      function openAppsModal() {
+        var modal = document.getElementById("appsModal");
+        var listEl = document.getElementById("installedAppsList");
+        listEl.innerHTML = "";
+        modalOpen = true;
+        modal.classList.add("open");
+
+        var itemsToRender = installedApps.length > 0 ? installedApps : [
+          { name: "TizenTube (via TizenBrew)", id: "xvvl3S1bvH.TizenBrewStandalone" },
+          { name: "Live TV Viewer", id: "org.tizen.tv-viewer" },
+          { name: "Samsung Internet Browser", id: "org.tizen.browser" }
+        ];
+
+        for (var i = 0; i < itemsToRender.length; i++) {
+          (function (app) {
+            var btn = document.createElement("button");
+            btn.className = "installed-app-item focusable-modal";
+            btn.setAttribute("tabindex", "-1");
+            btn.innerHTML =
+              '<div class="installed-app-name">' + (app.name || app.id) + "</div>" +
+              '<div class="installed-app-id">' + app.id + "</div>";
+            btn.onclick = function () {
+              showToast("Launching " + (app.name || app.id) + "...");
+              if (typeof tizen !== "undefined" && tizen.application) {
+                tizen.application.launch(app.id);
+              }
+            };
+            listEl.appendChild(btn);
+          })(itemsToRender[i]);
+        }
+
+        var closeBtn = document.getElementById("closeModalBtn");
+        closeBtn.setAttribute("tabindex", "0");
+        closeBtn.focus();
+      }
+
+      function closeAppsModal() {
+        var modal = document.getElementById("appsModal");
+        modal.classList.remove("open");
+        modalOpen = false;
+        var firstMain = document.querySelector(".focusable[tabindex='0']") || document.querySelector(".focusable");
+        if (firstMain) setRovingFocus(firstMain);
+      }
+
+      document.getElementById("closeModalBtn").onclick = closeAppsModal;
+
+      // 11. Handle Card Activation
+      function activateElement(el) {
+        if (!el) return;
+        var action = el.getAttribute("data-action");
+        if (action === "tizentube") {
+          launchTizenTube();
+        } else if (action === "discover-apps") {
+          openAppsModal();
+        } else if (action === "native-app") {
+          launchNativeService(el);
+        } else if (action === "source") {
+          switchTVSource(el.getAttribute("data-source") || "HDMI1", el);
+        } else if (action === "livetv") {
+          if (typeof tizen !== "undefined" && tizen.application) {
+            showToast("Switching to Live TV...");
+            tizen.application.launch("org.tizen.tv-viewer", function () {}, function () {
+              tizen.application.getCurrentApplication().hide();
+            });
+          } else {
+            showToast("Switching to Live TV...");
+          }
+        } else if (action === "browser") {
+          if (typeof tizen !== "undefined" && tizen.application) {
+            showToast("Opening Samsung Web Browser...");
+            tizen.application.launch("org.tizen.browser");
+          } else {
+            window.open("https://www.google.com", "_blank");
+          }
+        } else if (action === "tizenbrew-menu") {
+          showToast("Opening TizenBrew Menu...");
+          window.location.href = "/tizenbrew-ui/dist/index.html?disableAutoLaunch=true";
+        } else {
+          el.click();
+        }
+      }
+
+      // Attach click handlers & focus hero preview updates
+      var allFocusables = document.querySelectorAll(".focusable");
+      for (var i = 0; i < allFocusables.length; i++) {
+        (function (el) {
+          el.addEventListener("click", function () {
+            activateElement(el);
+          });
+          el.addEventListener("focus", function () {
+            var title = el.getAttribute("data-title");
+            var desc = el.getAttribute("data-desc");
+            var amb1 = el.getAttribute("data-ambient1");
+            var amb2 = el.getAttribute("data-ambient2");
+            if (title) document.getElementById("heroTitle").textContent = title;
+            if (desc) document.getElementById("heroDesc").textContent = desc;
+            if (amb1 && amb2) {
+              var backdrop = document.getElementById("ambientBackdrop");
+              backdrop.style.setProperty("--ambient-1", amb1);
+              backdrop.style.setProperty("--ambient-2", amb2);
+            }
+          });
+        })(allFocusables[i]);
+      }
+
+      // 12. 2D Spatial Navigation Engine (Roving Tabindex + Live Bounding Rects)
+      function isElementVisible(el) {
+        if (typeof el.checkVisibility === "function") {
+          return el.checkVisibility();
+        }
+        return el.offsetWidth > 0 && el.offsetHeight > 0;
+      }
+
+      function getActiveCandidates() {
+        var selector = modalOpen ? ".focusable-modal" : ".focusable";
+        var nodeList = document.querySelectorAll(selector);
+        var list = [];
+        for (var i = 0; i < nodeList.length; i++) {
+          if (isElementVisible(nodeList[i])) {
+            list.push(nodeList[i]);
+          }
+        }
+        return list;
+      }
+
+      function setRovingFocus(nextEl) {
+        var candidates = getActiveCandidates();
+        for (var i = 0; i < candidates.length; i++) {
+          candidates[i].setAttribute("tabindex", candidates[i] === nextEl ? "0" : "-1");
+          if (candidates[i] === nextEl) {
+            candidates[i].classList.add("is-focused");
+          } else {
+            candidates[i].classList.remove("is-focused");
+          }
+        }
+        nextEl.focus();
+        if (typeof nextEl.scrollIntoView === "function") {
+          try {
+            nextEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+          } catch (e) {
+            nextEl.scrollIntoView(false);
+          }
+        }
+      }
+
+      function findSpatialCandidate(currentEl, dir) {
+        var candidates = getActiveCandidates();
+        var curRect = currentEl.getBoundingClientRect();
+        var curCx = curRect.left + curRect.width / 2;
+        var curCy = curRect.top + curRect.height / 2;
+        var tolerance = 4;
+
+        var aligned = [];
+        var fallback = [];
+
+        for (var i = 0; i < candidates.length; i++) {
+          var cand = candidates[i];
+          if (cand === currentEl) continue;
+          var r = cand.getBoundingClientRect();
+          var cx = r.left + r.width / 2;
+          var cy = r.top + r.height / 2;
+
+          var inDir = false;
+          var gap = 0;
+          var perpOffset = 0;
+          var overlapsPerp = false;
+
+          if (dir === "right") {
+            inDir = r.left >= curRect.right - tolerance;
+            gap = Math.max(0, r.left - curRect.right);
+            perpOffset = Math.abs(cy - curCy);
+            overlapsPerp = r.bottom > curRect.top && r.top < curRect.bottom;
+          } else if (dir === "left") {
+            inDir = r.right <= curRect.left + tolerance;
+            gap = Math.max(0, curRect.left - r.right);
+            perpOffset = Math.abs(cy - curCy);
+            overlapsPerp = r.bottom > curRect.top && r.top < curRect.bottom;
+          } else if (dir === "down") {
+            inDir = r.top >= curRect.bottom - tolerance;
+            gap = Math.max(0, r.top - curRect.bottom);
+            perpOffset = Math.abs(cx - curCx);
+            overlapsPerp = r.right > curRect.left && r.left < curRect.right;
+          } else if (dir === "up") {
+            inDir = r.bottom <= curRect.top + tolerance;
+            gap = Math.max(0, curRect.top - r.bottom);
+            perpOffset = Math.abs(cx - curCx);
+            overlapsPerp = r.right > curRect.left && r.left < curRect.right;
+          }
+
+          if (!inDir) continue;
+
+          if (overlapsPerp) {
+            aligned.push({ el: cand, gap: gap, perpOffset: perpOffset });
+          } else {
+            fallback.push({ el: cand, score: gap + 2.5 * perpOffset });
+          }
+        }
+
+        if (aligned.length > 0) {
+          aligned.sort(function (a, b) {
+            if (Math.abs(a.gap - b.gap) > 2) return a.gap - b.gap;
+            return a.perpOffset - b.perpOffset;
+          });
+          return aligned[0].el;
+        }
+
+        if (fallback.length > 0) {
+          fallback.sort(function (a, b) {
+            return a.score - b.score;
+          });
+          return fallback[0].el;
+        }
+
+        return null;
+      }
+
+      // Keydown Router (Supports D-Pad Arrows, Enter/OK, Return/Back, and Color Buttons)
+      document.addEventListener("keydown", function (e) {
+        if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+        var target = e.composedPath ? e.composedPath()[0] : e.target;
+        if (target && target.matches && target.matches(':read-write, select, input[type="range"], [role="slider"]')) {
+          return;
+        }
+
+        var code = e.keyCode || e.which;
+
+        // Color Shortcuts: Red (403), Green (404), Yellow (405), Blue (406)
+        if (code === 403) {
+          e.preventDefault();
+          launchTizenTube();
+          return;
+        }
+        if (code === 404) {
+          e.preventDefault();
+          var nf = document.querySelector('[data-service="netflix"]');
+          if (nf) launchNativeService(nf);
+          return;
+        }
+        if (code === 405) {
+          e.preventDefault();
+          if (modalOpen) closeAppsModal();
+          else openAppsModal();
+          return;
+        }
+        if (code === 406) {
+          e.preventDefault();
+          window.location.href = "/tizenbrew-ui/dist/index.html?disableAutoLaunch=true";
+          return;
+        }
+
+        // Samsung Back / Return key (10009) or Escape (27)
+        if (code === 10009 || code === 27) {
+          if (modalOpen) {
+            e.preventDefault();
+            closeAppsModal();
+          }
+          return;
+        }
+
+        // Enter / OK button (13)
+        if (code === 13) {
+          var active = document.activeElement;
+          if (active && (active.classList.contains("focusable") || active.classList.contains("focusable-modal"))) {
+            e.preventDefault();
+            activateElement(active);
+          }
+          return;
+        }
+
+        // Directional Arrow Keys
+        var dir = null;
+        if (code === 37) dir = "left";
+        else if (code === 38) dir = "up";
+        else if (code === 39) dir = "right";
+        else if (code === 40) dir = "down";
+
+        if (!dir) return;
+
+        var current = document.activeElement;
+        var candidates = getActiveCandidates();
+        if (candidates.indexOf(current) === -1) {
+          if (candidates.length > 0) {
+            e.preventDefault();
+            setRovingFocus(candidates[0]);
+          }
+          return;
+        }
+
+        var next = findSpatialCandidate(current, dir);
+        if (next) {
+          e.preventDefault();
+          setRovingFocus(next);
+        }
+      });
+
+      // Focus the first streaming card on startup
+      window.addEventListener("load", function () {
+        var firstStreamingCard = document.querySelector('#streamingRow .focusable') || document.querySelector('.focusable');
+        if (firstStreamingCard) {
+          setRovingFocus(firstStreamingCard);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

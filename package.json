@@ -1,0 +1,20 @@
+{
+  "name": "tizen-dashboard",
+  "version": "1.0.0",
+  "description": "Custom 4K Smart TV Dashboard for Gabriel's Samsung UE40MU6120 (TizenTube, Netflix, Prime Video, Disney+, Apple TV+, Paramount+, NOW TV & HDMI Switcher)",
+  "packageType": "app",
+  "appName": "Gabriel's Hub",
+  "appPath": "app/index.html",
+  "keys": [
+    "ColorF0Red",
+    "ColorF1Green",
+    "ColorF2Yellow",
+    "ColorF3Blue",
+    "MediaPlay",
+    "MediaPause",
+    "MediaPlayPause",
+    "Info"
+  ],
+  "author": "Gabriel",
+  "license": "MIT"
+}
