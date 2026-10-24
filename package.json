@@ -1,10 +1,10 @@
 {
   "name": "tizen-dashboard",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Custom 4K Smart TV Dashboard (Theme A + Native REST Port 8001 App Launcher + Brand Logos)",
   "packageType": "app",
   "appName": "Gabriel's Hub",
-  "appPath": "app/index.html?v=1.2.0",
+  "appPath": "app/index.html?v=1.2.1",
   "keys": [
     "ColorF0Red",
     "ColorF1Green",
