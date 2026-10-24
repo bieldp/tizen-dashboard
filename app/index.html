@@ -5,18 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gabriel's Hub — Smart TV Dashboard</title>
   <style>
-    :root {
-      --bg-deep: #090b10;
-      --bg-surface: rgba(22, 27, 38, 0.78);
-      --bg-surface-hover: rgba(34, 42, 58, 0.92);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-focus: #ffffff;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-glow: rgba(56, 189, 248, 0.45);
-    }
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -29,13 +17,13 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background-color: var(--bg-deep);
-      color: var(--text-primary);
+      background-color: #f1f5f9;
+      color: #0f172a;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Ambient dynamic backdrop */
+    /* Theme A: Apple tvOS Daylight High-Contrast Alabaster / Soft Sky Backdrop (Zero CSS var() for Tizen 3.0 Chromium 47) */
     .ambient-backdrop {
       position: fixed;
       top: 0;
@@ -43,101 +31,119 @@
       right: 0;
       bottom: 0;
       z-index: 0;
-      background:
-        radial-gradient(circle at 18% 18%, var(--ambient-1, rgba(229, 9, 20, 0.22)) 0%, transparent 50%),
-        radial-gradient(circle at 82% 24%, var(--ambient-2, rgba(0, 168, 225, 0.18)) 0%, transparent 55%),
-        radial-gradient(circle at 50% 90%, rgba(15, 23, 42, 0.95) 0%, #090b10 100%);
-      transition: background 0.4s ease;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 55%, #dbeafe 100%);
     }
 
+    /* 5% 10-Foot UI Safe Zone Margins */
     .dashboard {
       position: relative;
       z-index: 1;
+      display: -webkit-flex;
       display: flex;
+      -webkit-flex-direction: column;
       flex-direction: column;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
       width: 100vw;
       height: 100vh;
-      padding: 3.6vh 4.5vw 3.2vh;
+      padding: 3.8vh 4.5vw 3.2vh;
     }
 
-    /* Top Bar: Brand + Weather + Clock */
+    /* TOP BAR */
     .top-bar {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
     }
 
     .brand-cluster {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
     }
 
     .brand-pill {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
+      background-color: #ffffff;
+      border: 2px solid #cbd5e1;
       border-radius: 999px;
-      padding: 0.8vh 1.4vw;
-      margin-right: 1.2vw;
+      padding: 1vh 1.6vw;
+      margin-right: 1.5vw;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
     }
 
     .brand-dot {
-      width: 10px;
-      height: 10px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 12px #38bdf8;
-      margin-right: 0.7vw;
+      background-color: #2563eb;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+      margin-right: 0.8vw;
     }
 
     .brand-title {
-      font-size: 1.35vw;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      font-size: 1.8vw;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.01em;
     }
 
     .brand-subtitle {
-      font-size: 1.05vw;
-      color: var(--text-secondary);
-      font-weight: 500;
+      font-size: 1.45vw;
+      color: #334155;
+      font-weight: 800;
     }
 
     .status-cluster {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
     }
 
     .weather-pill {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 0.9vh 1.3vw;
-      margin-right: 1.8vw;
+      background-color: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 1vh 1.5vw;
+      margin-right: 2.2vw;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
     }
 
     .weather-icon {
-      font-size: 1.7vw;
-      margin-right: 0.7vw;
+      font-size: 2.3vw;
+      margin-right: 0.8vw;
     }
 
     .weather-info {
+      display: -webkit-flex;
       display: flex;
+      -webkit-flex-direction: column;
       flex-direction: column;
     }
 
     .weather-temp {
-      font-size: 1.3vw;
-      font-weight: 700;
+      font-size: 1.7vw;
+      font-weight: 900;
+      color: #0f172a;
       line-height: 1.1;
     }
 
     .weather-desc {
-      font-size: 0.85vw;
-      color: var(--text-secondary);
+      font-size: 1.15vw;
+      font-weight: 800;
+      color: #475569;
     }
 
     .clock-cluster {
@@ -145,406 +151,531 @@
     }
 
     .clock-time {
-      font-size: 2.5vw;
-      font-weight: 700;
+      font-size: 3.3vw;
+      font-weight: 900;
+      color: #0f172a;
       letter-spacing: -0.02em;
       line-height: 1;
     }
 
     .clock-date {
-      font-size: 0.95vw;
-      color: var(--text-secondary);
-      margin-top: 0.3vh;
-      font-weight: 500;
+      font-size: 1.35vw;
+      color: #334155;
+      margin-top: 0.4vh;
+      font-weight: 800;
     }
 
-    /* Hero Spotlight Banner */
+    /* HERO SPOTLIGHT BANNER */
     .hero-banner {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.78) 0%, rgba(15, 23, 42, 0.55) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 2.6vh 2.8vw;
-      margin: 1.2vh 0;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
-      transition: border-color 0.25s ease;
+      background-color: #ffffff;
+      border: 3px solid #cbd5e1;
+      border-radius: 26px;
+      padding: 2.3vh 2.8vw;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.1);
     }
 
     .hero-left {
-      max-width: 62%;
+      max-width: 60%;
     }
 
     .hero-badge {
       display: inline-block;
-      font-size: 0.8vw;
-      font-weight: 700;
+      font-size: 1.1vw;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 0.4vh 0.8vw;
-      border-radius: 6px;
-      background: rgba(56, 189, 248, 0.18);
-      color: #38bdf8;
-      margin-bottom: 1vh;
+      letter-spacing: 0.08em;
+      padding: 0.45vh 1vw;
+      border-radius: 8px;
+      background-color: #2563eb;
+      color: #ffffff;
+      margin-bottom: 0.8vh;
     }
 
     .hero-title {
-      font-size: 2.3vw;
-      font-weight: 800;
+      font-size: 2.55vw;
+      font-weight: 900;
+      color: #0f172a;
       letter-spacing: -0.02em;
-      margin-bottom: 0.6vh;
+      margin-bottom: 0.5vh;
     }
 
     .hero-desc {
-      font-size: 1.1vw;
-      color: var(--text-secondary);
-      line-height: 1.4;
+      font-size: 1.42vw;
+      font-weight: 700;
+      color: #334155;
+      line-height: 1.35;
     }
 
     .hero-actions {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
     }
 
     .hero-btn {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
-      background: rgba(255, 255, 255, 0.08);
-      border: 2px solid rgba(255, 255, 255, 0.14);
-      color: var(--text-primary);
-      border-radius: 16px;
-      padding: 1.4vh 1.6vw;
-      margin-left: 1vw;
-      font-size: 1.05vw;
-      font-weight: 700;
+      background-color: #f1f5f9;
+      border: 3px solid #94a3b8;
+      color: #0f172a;
+      border-radius: 18px;
+      padding: 1.8vh 1.9vw;
+      margin-left: 1.2vw;
+      font-size: 1.4vw;
+      font-weight: 900;
       cursor: pointer;
       outline: none;
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      -webkit-transition: -webkit-transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, color 0.16s ease;
     }
 
     .hero-btn-primary {
-      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-      border-color: rgba(255, 255, 255, 0.25);
+      background-color: #dc2626;
+      border-color: #991b1b;
+      color: #ffffff;
     }
 
     .hero-btn:focus,
     .hero-btn.is-focused {
-      transform: scale(1.06);
-      border-color: #ffffff;
-      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25), 0 14px 30px rgba(0, 0, 0, 0.6);
+      -webkit-transform: scale(1.07);
+      transform: scale(1.07);
+      background-color: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 6px #3b82f6, 0 18px 36px rgba(15, 23, 42, 0.35);
     }
 
-    /* Section Headers */
+    /* SECTION HEADERS */
     .section-block {
-      margin-top: 0.6vh;
+      margin-top: 0.4vh;
     }
 
     .section-header {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
-      margin-bottom: 1.4vh;
+      margin-bottom: 1.3vh;
     }
 
     .section-title {
-      font-size: 1.05vw;
-      font-weight: 700;
+      font-size: 1.48vw;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+      color: #0f172a;
     }
 
     .section-hint {
-      font-size: 0.9vw;
-      color: var(--text-muted);
+      font-size: 1.22vw;
+      font-weight: 800;
+      color: #334155;
     }
 
-    /* Streaming Services Grid (7 Cards) */
+    /* STREAMING SERVICES GRID (7 Brand Logo Cards) */
     .apps-row {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: stretch;
       align-items: stretch;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
     }
 
     .app-card {
       position: relative;
-      width: 12.1vw;
-      height: 21.5vh;
-      border-radius: 22px;
-      background: var(--bg-surface);
-      border: 2px solid var(--border-subtle);
-      padding: 1.8vh 1.2vw;
+      width: 12.3vw;
+      height: 24.5vh;
+      border-radius: 24px;
+      background-color: #ffffff;
+      border: 3px solid #cbd5e1;
+      padding: 1.6vh 1vw 1.5vh;
+      display: -webkit-flex;
       display: flex;
+      -webkit-flex-direction: column;
       flex-direction: column;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
       cursor: pointer;
       outline: none;
       overflow: hidden;
-      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+      -webkit-transition: -webkit-transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
     }
 
-    .app-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: var(--card-accent, #38bdf8);
-      opacity: 0.85;
-    }
-
+    /* Focused Streaming Card: Apple tvOS Daylight Elevation + Bold Royal Blue Ring + Dark Inverted Label Pill */
     .app-card:focus,
     .app-card.is-focused {
-      transform: translateY(-8px) scale(1.065);
-      border-color: #ffffff;
-      background: var(--bg-surface-hover);
-      box-shadow:
-        0 0 0 4px rgba(255, 255, 255, 0.22),
-        0 18px 40px -8px var(--card-glow, rgba(0, 0, 0, 0.85));
-      z-index: 5;
+      -webkit-transform: translateY(-10px) scale(1.08);
+      transform: translateY(-10px) scale(1.08);
+      background-color: #ffffff;
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 6px #2563eb, 0 24px 48px rgba(15, 23, 42, 0.35);
+      z-index: 10;
     }
 
-    .app-logo-box {
-      width: 4.2vw;
-      height: 4.2vw;
-      border-radius: 14px;
+    /* SVG Logo Stage inside each card */
+    .app-logo-stage {
+      width: 100%;
+      height: 11vh;
+      border-radius: 16px;
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: center;
       justify-content: center;
-      font-size: 1.55vw;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      color: #ffffff;
-      background: var(--card-brand-bg, #1e293b);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      padding: 1vh 0.7vw;
+    }
+
+    .stage-youtube { background-color: #fef2f2; border: 2px solid #fecaca; }
+    .stage-netflix { background-color: #111111; border: 2px solid #dc2626; }
+    .stage-prime   { background-color: #f0f9ff; border: 2px solid #bae6fd; }
+    .stage-disney  { background-color: #061542; border: 2px solid #38bdf8; }
+    .stage-appletv { background-color: #f1f5f9; border: 2px solid #cbd5e1; }
+    .stage-paramount { background-color: #eff6ff; border: 2px solid #bfdbfe; }
+    .stage-nowtv   { background-color: #064e3b; border: 2px solid #34d399; }
+
+    .app-logo-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 8vh;
+      display: block;
     }
 
     .app-meta {
+      display: -webkit-flex;
       display: flex;
+      -webkit-flex-direction: column;
       flex-direction: column;
+      background-color: #f8fafc;
+      border-radius: 14px;
+      padding: 0.9vh 0.8vw;
+      border: 2px solid #e2e8f0;
+    }
+
+    .app-card:focus .app-meta,
+    .app-card.is-focused .app-meta {
+      background-color: #0f172a;
+      border-color: #0f172a;
     }
 
     .app-name {
-      font-size: 1.2vw;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: 0.3vh;
+      font-size: 1.5vw;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 0.2vh;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .app-tag {
-      font-size: 0.82vw;
-      font-weight: 600;
-      color: var(--text-secondary);
+    .app-card:focus .app-name,
+    .app-card.is-focused .app-name {
+      color: #ffffff;
     }
 
-    /* Inputs & Quick Utilities Row */
+    .app-tag {
+      font-size: 1.08vw;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .app-card:focus .app-tag,
+    .app-card.is-focused .app-tag {
+      color: #93c5fd;
+    }
+
+    /* INPUTS & UTILITIES ROW */
     .inputs-row {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: stretch;
       align-items: stretch;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
     }
 
     .input-card {
-      width: 14.3vw;
-      height: 11.5vh;
-      border-radius: 18px;
-      background: rgba(20, 26, 38, 0.72);
-      border: 2px solid var(--border-subtle);
-      padding: 1.4vh 1.3vw;
+      width: 14.4vw;
+      height: 12.2vh;
+      border-radius: 20px;
+      background-color: #ffffff;
+      border: 3px solid #cbd5e1;
+      padding: 1.4vh 1.1vw;
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
       cursor: pointer;
       outline: none;
-      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+      -webkit-transition: -webkit-transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+      transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
     }
 
+    /* Surface Inversion on Focus for Input Cards */
     .input-card:focus,
     .input-card.is-focused {
-      transform: translateY(-4px) scale(1.045);
-      border-color: #ffffff;
-      background: rgba(36, 46, 66, 0.95);
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2), 0 12px 28px rgba(0, 0, 0, 0.65);
-      z-index: 5;
+      -webkit-transform: translateY(-6px) scale(1.06);
+      transform: translateY(-6px) scale(1.06);
+      background-color: #0f172a;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 6px #3b82f6, 0 18px 34px rgba(15, 23, 42, 0.35);
+      z-index: 10;
     }
 
     .input-icon {
-      width: 2.8vw;
-      height: 2.8vw;
+      width: 3.4vw;
+      height: 3.4vw;
       border-radius: 12px;
-      background: rgba(255, 255, 255, 0.08);
+      background-color: #eff6ff;
+      border: 2px solid #93c5fd;
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: center;
       justify-content: center;
-      font-size: 1.3vw;
-      font-weight: 800;
-      margin-right: 0.9vw;
-      color: #38bdf8;
+      margin-right: 0.85vw;
+      color: #1d4ed8;
+      -webkit-flex-shrink: 0;
       flex-shrink: 0;
     }
 
+    .input-card:focus .input-icon,
+    .input-card.is-focused .input-icon {
+      background-color: #2563eb;
+      border-color: #93c5fd;
+      color: #ffffff;
+    }
+
+    .input-icon svg {
+      width: 2vw;
+      height: 2vw;
+      display: block;
+    }
+
     .input-text {
+      display: -webkit-flex;
       display: flex;
+      -webkit-flex-direction: column;
       flex-direction: column;
       overflow: hidden;
     }
 
     .input-name {
-      font-size: 1.08vw;
-      font-weight: 700;
-      color: var(--text-primary);
+      font-size: 1.4vw;
+      font-weight: 900;
+      color: #0f172a;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    .input-card:focus .input-name,
+    .input-card.is-focused .input-name {
+      color: #ffffff;
+    }
+
     .input-sub {
-      font-size: 0.8vw;
-      color: var(--text-secondary);
+      font-size: 1.08vw;
+      font-weight: 800;
+      color: #475569;
       margin-top: 0.2vh;
     }
 
-    /* Footer Bar with Color Remote Key Legend */
+    .input-card:focus .input-sub,
+    .input-card.is-focused .input-sub {
+      color: #cbd5e1;
+    }
+
+    /* FOOTER BAR */
     .footer-bar {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
-      padding-top: 1vh;
-      border-top: 1px solid rgba(255, 255, 255, 0.07);
-      font-size: 0.88vw;
-      color: var(--text-secondary);
+      padding-top: 1.2vh;
+      border-top: 2px solid #cbd5e1;
+      font-size: 1.22vw;
+      font-weight: 800;
+      color: #0f172a;
     }
 
     .remote-hints {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
     }
 
     .remote-hint-item {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
-      margin-right: 1.8vw;
+      margin-right: 2.2vw;
     }
 
     .color-dot {
-      width: 14px;
-      height: 8px;
+      width: 20px;
+      height: 13px;
       border-radius: 4px;
-      margin-right: 0.45vw;
+      margin-right: 0.55vw;
+      border: 2px solid #0f172a;
     }
 
-    .dot-red { background: #ef4444; }
-    .dot-green { background: #22c55e; }
-    .dot-yellow { background: #eab308; }
-    .dot-blue { background: #3b82f6; }
+    .dot-red { background-color: #ef4444; }
+    .dot-green { background-color: #22c55e; }
+    .dot-yellow { background-color: #eab308; }
+    .dot-blue { background-color: #3b82f6; }
 
-    /* Modal for App Discovery / Custom App ID Mapping */
+    /* MODAL FOR APP DISCOVERY */
     .modal-backdrop {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(5, 7, 12, 0.86);
+      background-color: rgba(15, 23, 42, 0.85);
       z-index: 50;
       display: none;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: center;
       justify-content: center;
       padding: 5vh 6vw;
     }
 
     .modal-backdrop.open {
+      display: -webkit-flex;
       display: flex;
     }
 
     .modal-panel {
-      width: 78vw;
-      max-height: 82vh;
-      background: #111622;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      border-radius: 24px;
+      width: 82vw;
+      max-height: 84vh;
+      background-color: #ffffff;
+      border: 4px solid #2563eb;
+      border-radius: 26px;
       padding: 3vh 3vw;
+      display: -webkit-flex;
       display: flex;
+      -webkit-flex-direction: column;
       flex-direction: column;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
     }
 
     .modal-header {
+      display: -webkit-flex;
       display: flex;
+      -webkit-align-items: center;
       align-items: center;
+      -webkit-justify-content: space-between;
       justify-content: space-between;
       margin-bottom: 2vh;
     }
 
     .modal-title {
-      font-size: 1.6vw;
-      font-weight: 800;
+      font-size: 2vw;
+      font-weight: 900;
+      color: #0f172a;
     }
 
     .modal-list {
       overflow-y: auto;
+      display: -webkit-flex;
       display: flex;
+      -webkit-flex-wrap: wrap;
       flex-wrap: wrap;
-      max-height: 60vh;
+      max-height: 62vh;
     }
 
     .installed-app-item {
-      width: 22.5vw;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.08);
+      width: 23.5vw;
+      background-color: #f8fafc;
+      border: 3px solid #cbd5e1;
       border-radius: 14px;
-      padding: 1.2vh 1.1vw;
-      margin: 0.6vh 0.6vw;
+      padding: 1.4vh 1.2vw;
+      margin: 0.7vh 0.7vw;
       cursor: pointer;
       outline: none;
+      text-align: left;
     }
 
     .installed-app-item:focus,
     .installed-app-item.is-focused {
-      border-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.15);
+      border-color: #2563eb;
+      background-color: #0f172a;
+      box-shadow: 0 0 0 5px #3b82f6;
+      -webkit-transform: scale(1.03);
       transform: scale(1.03);
     }
 
     .installed-app-name {
-      font-size: 1.05vw;
-      font-weight: 700;
-      color: #fff;
+      font-size: 1.4vw;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .installed-app-item:focus .installed-app-name,
+    .installed-app-item.is-focused .installed-app-name {
+      color: #ffffff;
     }
 
     .installed-app-id {
-      font-size: 0.78vw;
-      color: var(--text-secondary);
-      margin-top: 0.3vh;
+      font-size: 1.05vw;
+      font-weight: 700;
+      color: #475569;
+      margin-top: 0.4vh;
       word-break: break-all;
     }
 
-    /* Toast notification */
+    .installed-app-item:focus .installed-app-id,
+    .installed-app-item.is-focused .installed-app-id {
+      color: #cbd5e1;
+    }
+
+    /* TOAST */
     .toast {
       position: fixed;
       bottom: 4vh;
       right: 4vw;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(56, 189, 248, 0.5);
-      color: #f8fafc;
-      padding: 1.4vh 1.8vw;
-      border-radius: 14px;
-      font-size: 1.05vw;
-      font-weight: 600;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+      background-color: #0f172a;
+      border: 3px solid #3b82f6;
+      color: #ffffff;
+      padding: 1.6vh 2.2vw;
+      border-radius: 16px;
+      font-size: 1.45vw;
+      font-weight: 900;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.45);
       z-index: 100;
       opacity: 0;
+      -webkit-transform: translateY(15px);
       transform: translateY(15px);
+      -webkit-transition: opacity 0.25s ease, -webkit-transform 0.25s ease;
       transition: opacity 0.25s ease, transform 0.25s ease;
       pointer-events: none;
     }
 
     .toast.visible {
       opacity: 1;
+      -webkit-transform: translateY(0);
       transform: translateY(0);
     }
   </style>
@@ -595,8 +726,6 @@
           data-action="tizentube"
           data-title="TizenTube (Ad-Free 4K YouTube)"
           data-desc="Launch YouTube with integrated SponsorBlock, DeArrow, and zero ads via TizenBrew."
-          data-ambient1="rgba(239, 68, 68, 0.28)"
-          data-ambient2="rgba(185, 28, 28, 0.2)"
         >
           ▶ Launch TizenTube
         </button>
@@ -606,15 +735,13 @@
           data-action="discover-apps"
           data-title="Installed TV Apps Browser"
           data-desc="Inspect and launch every native Tizen application installed on your UE40MU6120."
-          data-ambient1="rgba(56, 189, 248, 0.25)"
-          data-ambient2="rgba(59, 130, 246, 0.18)"
         >
           ⊞ All Installed Apps
         </button>
       </div>
     </section>
 
-    <!-- STREAMING SERVICES ROW -->
+    <!-- STREAMING SERVICES ROW WITH OFFICIAL VECTOR BRAND LOGOS -->
     <section class="section-block">
       <div class="section-header">
         <span class="section-title">Streaming Services</span>
@@ -622,7 +749,7 @@
       </div>
 
       <div class="apps-row" id="streamingRow">
-        <!-- 1. TizenTube (YouTube Ad-Free) -->
+        <!-- 1. YouTube (TizenTube Ad-Free) -->
         <div
           class="app-card focusable"
           tabindex="-1"
@@ -631,11 +758,14 @@
           data-action="tizentube"
           data-title="YouTube (TizenTube)"
           data-desc="Ad-free 4K YouTube with SponsorBlock & DeArrow powered by TizenBrew."
-          data-ambient1="rgba(255, 0, 51, 0.28)"
-          data-ambient2="rgba(220, 38, 38, 0.18)"
-          style="--card-accent: #ff0033; --card-brand-bg: linear-gradient(135deg, #ff0033, #b91c1c); --card-glow: rgba(255, 0, 51, 0.45);"
         >
-          <div class="app-logo-box">▶ YT</div>
+          <div class="app-logo-stage stage-youtube">
+            <svg viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="6" y="10" width="72" height="50" rx="14" fill="#FF0000"/>
+              <polygon points="34,23 34,47 56,35" fill="#FFFFFF"/>
+              <text x="88" y="46" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="32" letter-spacing="-1.2" fill="#0F172A">YouTube</text>
+            </svg>
+          </div>
           <div class="app-meta">
             <div class="app-name">YouTube</div>
             <div class="app-tag">TizenTube • No Ads</div>
@@ -654,11 +784,12 @@
           data-url="https://www.netflix.com/browse"
           data-title="Netflix"
           data-desc="Watch Netflix movies, series, and 4K UHD originals."
-          data-ambient1="rgba(229, 9, 20, 0.30)"
-          data-ambient2="rgba(153, 27, 27, 0.20)"
-          style="--card-accent: #e50914; --card-brand-bg: linear-gradient(135deg, #e50914, #831010); --card-glow: rgba(229, 9, 20, 0.48);"
         >
-          <div class="app-logo-box">N</div>
+          <div class="app-logo-stage stage-netflix">
+            <svg viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <text x="110" y="49" text-anchor="middle" font-family="Arial Black, Impact, Arial, sans-serif" font-weight="900" font-size="39" letter-spacing="3" fill="#E50914">NETFLIX</text>
+            </svg>
+          </div>
           <div class="app-meta">
             <div class="app-name">Netflix</div>
             <div class="app-tag">4K UHD • Native</div>
@@ -677,11 +808,14 @@
           data-url="https://www.primevideo.com"
           data-title="Amazon Prime Video"
           data-desc="Stream Amazon Originals, movies, live sports, and channels."
-          data-ambient1="rgba(0, 168, 225, 0.28)"
-          data-ambient2="rgba(2, 132, 199, 0.20)"
-          style="--card-accent: #00a8e1; --card-brand-bg: linear-gradient(135deg, #00a8e1, #0369a1); --card-glow: rgba(0, 168, 225, 0.45);"
         >
-          <div class="app-logo-box">prime</div>
+          <div class="app-logo-stage stage-prime">
+            <svg viewBox="0 0 220 75" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <text x="110" y="38" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="31" fill="#0F172A">prime video</text>
+              <path d="M56 50 Q110 68 164 50" fill="none" stroke="#00A8E1" stroke-width="5.5" stroke-linecap="round"/>
+              <polygon points="159,44 170,49 162,58" fill="#00A8E1"/>
+            </svg>
+          </div>
           <div class="app-meta">
             <div class="app-name">Prime Video</div>
             <div class="app-tag">4K HDR • Native</div>
@@ -700,11 +834,14 @@
           data-url="https://www.disneyplus.com"
           data-title="Disney+"
           data-desc="Disney, Pixar, Marvel, Star Wars, National Geographic, and Star."
-          data-ambient1="rgba(17, 60, 207, 0.32)"
-          data-ambient2="rgba(6, 182, 212, 0.20)"
-          style="--card-accent: #38bdf8; --card-brand-bg: linear-gradient(135deg, #113ccf, #071854); --card-glow: rgba(56, 189, 248, 0.45);"
         >
-          <div class="app-logo-box">D+</div>
+          <div class="app-logo-stage stage-disney">
+            <svg viewBox="0 0 220 75" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M45 24 Q112 -2 176 26" fill="none" stroke="#38BDF8" stroke-width="3.5" stroke-linecap="round"/>
+              <text x="102" y="54" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="38" fill="#FFFFFF">Disney</text>
+              <text x="176" y="52" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="36" fill="#38BDF8">+</text>
+            </svg>
+          </div>
           <div class="app-meta">
             <div class="app-name">Disney+</div>
             <div class="app-tag">4K UHD • Native</div>
@@ -723,11 +860,14 @@
           data-url="https://tv.apple.com"
           data-title="Apple TV+"
           data-desc="Apple Original series, films, MLS Season Pass, and your library."
-          data-ambient1="rgba(148, 163, 184, 0.25)"
-          data-ambient2="rgba(71, 85, 105, 0.22)"
-          style="--card-accent: #e2e8f0; --card-brand-bg: linear-gradient(135deg, #334155, #0f172a); --card-glow: rgba(226, 232, 240, 0.38);"
         >
-          <div class="app-logo-box">tv+</div>
+          <div class="app-logo-stage stage-appletv">
+            <svg viewBox="0 0 220 75" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M68 41c0-6.5 5.3-9.7 5.6-9.9-3.1-4.5-7.8-5.1-9.5-5.2-4-.4-7.9 2.4-10 2.4-2.1 0-5.2-2.3-8.6-2.3-4.4.1-8.5 2.6-10.8 6.5-4.6 8-1.2 19.8 3.3 26.3 2.2 3.2 4.8 6.7 8.2 6.6 3.3-.1 4.6-2.1 8.5-2.1 3.9 0 5.1 2.1 8.6 2.1 3.5-.1 5.8-3.2 8-6.4 2.5-3.7 3.5-7.2 3.6-7.4-.1-.1-6.9-2.6-6.9-10.6z" fill="#0F172A"/>
+              <path d="M61.5 21.5c1.8-2.2 3-5.2 2.7-8.3-2.6.1-5.8 1.7-7.7 3.9-1.7 1.9-3.1 5-2.7 8 2.9.2 5.9-1.5 7.7-3.6z" fill="#0F172A"/>
+              <text x="90" y="54" font-family="-apple-system, Arial, sans-serif" font-weight="900" font-size="44" letter-spacing="-1.5" fill="#0F172A">tv+</text>
+            </svg>
+          </div>
           <div class="app-meta">
             <div class="app-name">Apple TV+</div>
             <div class="app-tag">Originals & Store</div>
@@ -746,11 +886,14 @@
           data-url="https://www.paramountplus.com"
           data-title="Paramount+"
           data-desc="Blockbuster movies, new originals, SHOWTIME, and CBS library."
-          data-ambient1="rgba(0, 100, 255, 0.30)"
-          data-ambient2="rgba(37, 99, 235, 0.22)"
-          style="--card-accent: #0064ff; --card-brand-bg: linear-gradient(135deg, #0064ff, #1e3a8a); --card-glow: rgba(0, 100, 255, 0.48);"
         >
-          <div class="app-logo-box">P+</div>
+          <div class="app-logo-stage stage-paramount">
+            <svg viewBox="0 0 220 75" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <polygon points="110,8 78,42 142,42" fill="#0064FF"/>
+              <polygon points="110,15 92,42 128,42" fill="#FFFFFF" opacity="0.45"/>
+              <text x="110" y="62" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="900" font-size="25" fill="#0064FF">Paramount+</text>
+            </svg>
+          </div>
           <div class="app-meta">
             <div class="app-name">Paramount+</div>
             <div class="app-tag">Movies & Series</div>
@@ -769,11 +912,12 @@
           data-url="https://www.nowtv.com"
           data-title="NOW TV"
           data-desc="Sky Cinema, Sky Entertainment, and live Sky Sports channels."
-          data-ambient1="rgba(16, 185, 129, 0.26)"
-          data-ambient2="rgba(5, 150, 105, 0.18)"
-          style="--card-accent: #10b981; --card-brand-bg: linear-gradient(135deg, #059669, #064e3b); --card-glow: rgba(16, 185, 129, 0.42);"
         >
-          <div class="app-logo-box">NOW</div>
+          <div class="app-logo-stage stage-nowtv">
+            <svg viewBox="0 0 220 75" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <text x="110" y="53" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="44" letter-spacing="4" fill="#34D399">NOW</text>
+            </svg>
+          </div>
           <div class="app-meta">
             <div class="app-name">NOW TV</div>
             <div class="app-tag">Cinema & Sports</div>
@@ -782,7 +926,7 @@
       </div>
     </section>
 
-    <!-- HDMI INPUT SWITCHER & SYSTEM UTILITIES ROW -->
+    <!-- HDMI INPUT SWITCHER & SYSTEM UTILITIES ROW WITH CRISP SVG ICONS -->
     <section class="section-block">
       <div class="section-header">
         <span class="section-title">HDMI Inputs, Live TV & Controls</span>
@@ -800,10 +944,14 @@
           data-title="HDMI 1 Input"
           data-desc="Switch your Samsung UE40MU6120 directly to HDMI 1."
         >
-          <div class="input-icon">H1</div>
+          <div class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16l-2 7H6L4 7z"/><path d="M8 14v3h8v-3"/><line x1="9" y1="10" x2="9" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="15" y1="10" x2="15" y2="10"/>
+            </svg>
+          </div>
           <div class="input-text">
             <div class="input-name">HDMI 1</div>
-            <div class="input-sub">External Device 1</div>
+            <div class="input-sub">Port 1</div>
           </div>
         </div>
 
@@ -817,10 +965,14 @@
           data-title="HDMI 2 Input"
           data-desc="Switch your Samsung UE40MU6120 directly to HDMI 2."
         >
-          <div class="input-icon">H2</div>
+          <div class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16l-2 7H6L4 7z"/><path d="M8 14v3h8v-3"/><line x1="9" y1="10" x2="9" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="15" y1="10" x2="15" y2="10"/>
+            </svg>
+          </div>
           <div class="input-text">
             <div class="input-name">HDMI 2</div>
-            <div class="input-sub">External Device 2</div>
+            <div class="input-sub">Port 2</div>
           </div>
         </div>
 
@@ -834,10 +986,14 @@
           data-title="HDMI 3 (ARC)"
           data-desc="Switch your Samsung UE40MU6120 directly to HDMI 3 (ARC)."
         >
-          <div class="input-icon">H3</div>
+          <div class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16l-2 7H6L4 7z"/><path d="M8 14v3h8v-3"/><line x1="9" y1="10" x2="9" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="15" y1="10" x2="15" y2="10"/>
+            </svg>
+          </div>
           <div class="input-text">
             <div class="input-name">HDMI 3</div>
-            <div class="input-sub">Audio Return / Aux</div>
+            <div class="input-sub">ARC / Audio</div>
           </div>
         </div>
 
@@ -850,10 +1006,14 @@
           data-title="Live Broadcast TV"
           data-desc="Switch to aerial/cable live broadcast tuner (org.tizen.tv-viewer)."
         >
-          <div class="input-icon">TV</div>
+          <div class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/>
+            </svg>
+          </div>
           <div class="input-text">
             <div class="input-name">Live TV</div>
-            <div class="input-sub">Freeview / Tuner</div>
+            <div class="input-sub">Freeview</div>
           </div>
         </div>
 
@@ -866,9 +1026,13 @@
           data-title="Tizen Web Browser"
           data-desc="Open the full Samsung Tizen Internet Browser."
         >
-          <div class="input-icon">🌐</div>
+          <div class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
           <div class="input-text">
-            <div class="input-name">Web Browser</div>
+            <div class="input-name">Browser</div>
             <div class="input-sub">Internet</div>
           </div>
         </div>
@@ -881,10 +1045,14 @@
           data-title="TizenBrew Settings"
           data-desc="Open the TizenBrew module manager and settings menu."
         >
-          <div class="input-icon">⚙</div>
+          <div class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
           <div class="input-text">
             <div class="input-name">TizenBrew</div>
-            <div class="input-sub">Modules & Config</div>
+            <div class="input-sub">Settings</div>
           </div>
         </div>
       </div>
@@ -910,7 +1078,7 @@
           <span><strong>Blue:</strong> TizenBrew Menu</span>
         </div>
       </div>
-      <div id="statusFooterText">TizenBrew Connected • Auto-Launch Enabled</div>
+      <div id="statusFooterText">TizenBrew Connected • Auto-Launch Ready</div>
     </footer>
   </main>
 
@@ -920,7 +1088,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="modalTitle">Installed Apps on Your Samsung UE40MU6120</div>
-          <div style="font-size: 0.9vw; color: #94a3b8; margin-top: 0.4vh;">
+          <div style="font-size: 1.25vw; color: #334155; margin-top: 0.4vh; font-weight: 800;">
             Click any app to launch it immediately, or press BACK / RETURN on your remote to close.
           </div>
         </div>
@@ -1054,7 +1222,7 @@
         try {
           tbSocket = new WebSocket("ws://127.0.0.1:8081");
           tbSocket.onopen = function () {
-            tbSocket.send(JSON.stringify({ type: 4, payload: true })); // Events.GetModules = 4
+            tbSocket.send(JSON.stringify({ type: 4, payload: true }));
           };
           tbSocket.onmessage = function (ev) {
             try {
@@ -1095,7 +1263,7 @@
         }
 
         if (tbSocket && tbSocket.readyState === 1) {
-          tbSocket.send(JSON.stringify({ type: 5, payload: ttMod })); // Events.LaunchModule = 5
+          tbSocket.send(JSON.stringify({ type: 5, payload: ttMod }));
           setTimeout(function () {
             window.location.href = ttMod.appPath || "https://www.youtube.com/tv";
           }, 180);
@@ -1104,7 +1272,7 @@
         }
       }
 
-      // 8. Smart Native App Launcher (Matches by discovered name/ID, then fallback IDs, then URL)
+      // 8. Smart Native App Launcher
       function launchNativeService(cardEl) {
         var title = cardEl.getAttribute("data-title") || "App";
         var keywords = (cardEl.getAttribute("data-keywords") || "").toLowerCase().split(",");
@@ -1112,11 +1280,9 @@
         var webUrl = cardEl.getAttribute("data-url");
         var serviceKey = cardEl.getAttribute("data-service");
 
-        // Check if user saved a custom appId override in localStorage
         var savedId = serviceKey ? localStorage.getItem("custom_appid_" + serviceKey) : null;
 
         if (typeof tizen !== "undefined" && tizen.application) {
-          // 1) Try saved override first
           if (savedId) {
             try {
               showToast("Opening " + title + "...");
@@ -1127,7 +1293,6 @@
             } catch (e) {}
           }
 
-          // 2) Search live installedApps list from getAppsInfo
           for (var i = 0; i < installedApps.length; i++) {
             var app = installedApps[i];
             var appName = (app.name || "").toLowerCase();
@@ -1148,7 +1313,6 @@
             }
           }
 
-          // 3) Try known Samsung Tizen App IDs sequentially
           var idx = 0;
           function tryNextFallback() {
             if (idx >= fallbackIds.length) {
@@ -1187,7 +1351,6 @@
       function switchTVSource(sourceName, cardEl) {
         showToast("Switching to " + sourceName + "...");
         if (typeof tizen !== "undefined") {
-          // Try tizen.tvwindow API if available
           if (tizen.tvwindow && tizen.tvwindow.setSource) {
             try {
               tizen.tvwindow.setSource(
@@ -1202,7 +1365,6 @@
               return;
             } catch (e) {}
           }
-          // Fallback: launch org.tizen.tv-viewer with source AppControl
           if (tizen.application && tizen.application.launchAppControl) {
             try {
               var appControl = new tizen.ApplicationControl(
@@ -1320,20 +1482,13 @@
           el.addEventListener("focus", function () {
             var title = el.getAttribute("data-title");
             var desc = el.getAttribute("data-desc");
-            var amb1 = el.getAttribute("data-ambient1");
-            var amb2 = el.getAttribute("data-ambient2");
             if (title) document.getElementById("heroTitle").textContent = title;
             if (desc) document.getElementById("heroDesc").textContent = desc;
-            if (amb1 && amb2) {
-              var backdrop = document.getElementById("ambientBackdrop");
-              backdrop.style.setProperty("--ambient-1", amb1);
-              backdrop.style.setProperty("--ambient-2", amb2);
-            }
           });
         })(allFocusables[i]);
       }
 
-      // 12. 2D Spatial Navigation Engine (Roving Tabindex + Live Bounding Rects)
+      // 12. 2D Spatial Navigation Engine
       function isElementVisible(el) {
         if (typeof el.checkVisibility === "function") {
           return el.checkVisibility();
@@ -1444,7 +1599,7 @@
         return null;
       }
 
-      // Keydown Router (Supports D-Pad Arrows, Enter/OK, Return/Back, and Color Buttons)
+      // Keydown Router
       document.addEventListener("keydown", function (e) {
         if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
         var target = e.composedPath ? e.composedPath()[0] : e.target;
