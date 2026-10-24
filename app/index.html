@@ -779,8 +779,9 @@
           role="button"
           data-service="netflix"
           data-action="native-app"
+          data-rest-id="11101200001"
           data-keywords="netflix"
-          data-fallback-ids="org.tizen.netflix-app,11101200001,3201907018807"
+          data-fallback-ids="11101200001,org.tizen.netflix-app,3201907018807"
           data-url="https://www.netflix.com/browse"
           data-title="Netflix"
           data-desc="Watch Netflix movies, series, and 4K UHD originals."
@@ -803,8 +804,9 @@
           role="button"
           data-service="prime"
           data-action="native-app"
-          data-keywords="amazon,primevideo,ignition,lovefilm"
-          data-fallback-ids="org.tizen.ignition,3201512006785,111299001912"
+          data-rest-id="3201512006785"
+          data-keywords="prime video,primevideo,amazon,lovefilm"
+          data-fallback-ids="3201512006785,org.tizen.ignition"
           data-url="https://www.primevideo.com"
           data-title="Amazon Prime Video"
           data-desc="Stream Amazon Originals, movies, live sports, and channels."
@@ -829,8 +831,9 @@
           role="button"
           data-service="disney"
           data-action="native-app"
+          data-rest-id="3201901017640"
           data-keywords="disney"
-          data-fallback-ids="MCmYXNxgcu.DisneyPlus,3201901017640"
+          data-fallback-ids="3201901017640,MCmYXNxgcu.DisneyPlus"
           data-url="https://www.disneyplus.com"
           data-title="Disney+"
           data-desc="Disney, Pixar, Marvel, Star Wars, National Geographic, and Star."
@@ -855,8 +858,9 @@
           role="button"
           data-service="appletv"
           data-action="native-app"
-          data-keywords="apple,appletv"
-          data-fallback-ids="com.apple.atve.tizen.appletv,3201807016597"
+          data-rest-id="3201807016597"
+          data-keywords="apple tv,appletv"
+          data-fallback-ids="3201807016597,com.apple.atve.tizen.appletv,com.samsung.tv.ariavideo"
           data-url="https://tv.apple.com"
           data-title="Apple TV+"
           data-desc="Apple Original series, films, MLS Season Pass, and your library."
@@ -881,6 +885,7 @@
           role="button"
           data-service="paramount"
           data-action="native-app"
+          data-rest-id="3201710014981"
           data-keywords="paramount"
           data-fallback-ids="3201710014981,rJeHak5zST.ParamountPlus"
           data-url="https://www.paramountplus.com"
@@ -907,8 +912,9 @@
           role="button"
           data-service="nowtv"
           data-action="native-app"
-          data-keywords="now tv,nowtv,sky"
-          data-fallback-ids="3201601007250,111299002145"
+          data-rest-id="3201603008746"
+          data-keywords="now,now tv,nowtv"
+          data-fallback-ids="3201603008746,3201601007250"
           data-url="https://www.nowtv.com"
           data-title="NOW TV"
           data-desc="Sky Cinema, Sky Entertainment, and live Sky Sports channels."
@@ -1272,79 +1278,106 @@
         }
       }
 
-      // 8. Smart Native App Launcher
+      // 8. Smart Native App Launcher (Uses TV Local REST API port 8001 + Tizen App API + Store fallback)
+      function launchViaLocalRestApi(restAppId, onSuccess, onFail) {
+        if (!restAppId) return onFail();
+        try {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "http://127.0.0.1:8001/api/v2/applications/" + restAppId, true);
+          xhr.timeout = 2200;
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                onSuccess();
+              } else {
+                onFail();
+              }
+            }
+          };
+          xhr.onerror = function () { onFail(); };
+          xhr.ontimeout = function () { onFail(); };
+          xhr.send();
+        } catch (e) {
+          onFail();
+        }
+      }
+
       function launchNativeService(cardEl) {
         var title = cardEl.getAttribute("data-title") || "App";
+        var restId = cardEl.getAttribute("data-rest-id") || "";
         var keywords = (cardEl.getAttribute("data-keywords") || "").toLowerCase().split(",");
         var fallbackIds = (cardEl.getAttribute("data-fallback-ids") || "").split(",");
-        var webUrl = cardEl.getAttribute("data-url");
         var serviceKey = cardEl.getAttribute("data-service");
 
-        var savedId = serviceKey ? localStorage.getItem("custom_appid_" + serviceKey) : null;
+        showToast("Launching " + title + "...");
 
-        if (typeof tizen !== "undefined" && tizen.application) {
-          if (savedId) {
-            try {
-              showToast("Opening " + title + "...");
-              tizen.application.launch(savedId, function () {}, function () {
-                localStorage.removeItem("custom_appid_" + serviceKey);
-              });
-              return;
-            } catch (e) {}
-          }
+        // Step 1: Fire Samsung's built-in Local REST API (http://127.0.0.1:8001/api/v2/applications/<restId>)
+        // This launches both Tizen apps and Orsay/Cloud apps (like Prime Video 3201512006785, Netflix 11101200001, Disney+ 3201901017640, NOW 3201603008746)
+        launchViaLocalRestApi(
+          restId,
+          function () {
+            // Successfully launched via port 8001 REST API
+          },
+          function () {
+            // Step 2: If port 8001 returned 404 or failed, try tizen.application.launch
+            if (typeof tizen !== "undefined" && tizen.application) {
+              var savedId = serviceKey ? localStorage.getItem("custom_appid_" + serviceKey) : null;
+              if (savedId) {
+                try {
+                  tizen.application.launch(savedId, function () {}, function () {
+                    localStorage.removeItem("custom_appid_" + serviceKey);
+                  });
+                  return;
+                } catch (e) {}
+              }
 
-          for (var i = 0; i < installedApps.length; i++) {
-            var app = installedApps[i];
-            var appName = (app.name || "").toLowerCase();
-            var appId = (app.id || "").toLowerCase();
-            for (var k = 0; k < keywords.length; k++) {
-              var kw = keywords[k].trim();
-              if (kw && (appName.indexOf(kw) !== -1 || appId.indexOf(kw) !== -1)) {
-                showToast("Launching " + app.name + "...");
-                tizen.application.launch(
-                  app.id,
-                  function () {},
-                  function (err) {
-                    showToast("Launch error: " + err.message);
+              // Search live installedApps list from getAppsInfo()
+              for (var i = 0; i < installedApps.length; i++) {
+                var app = installedApps[i];
+                var appName = (app.name || "").toLowerCase();
+                var appId = (app.id || "").toLowerCase();
+                for (var k = 0; k < keywords.length; k++) {
+                  var kw = keywords[k].trim();
+                  if (kw && (appName.indexOf(kw) !== -1 || appId.indexOf(kw) !== -1)) {
+                    tizen.application.launch(
+                      app.id,
+                      function () {},
+                      function (err) {
+                        showToast("Could not launch " + app.name + ": " + err.message);
+                      }
+                    );
+                    return;
                   }
-                );
-                return;
+                }
               }
-            }
-          }
 
-          var idx = 0;
-          function tryNextFallback() {
-            if (idx >= fallbackIds.length) {
-              if (webUrl) {
-                showToast("Opening " + title + " Web App...");
-                window.location.href = webUrl;
-              } else {
-                showToast(title + " not found. Use 'All Installed Apps' to pick it.");
-              }
-              return;
-            }
-            var candidateId = fallbackIds[idx++].trim();
-            if (!candidateId) return tryNextFallback();
-            try {
-              tizen.application.launch(
-                candidateId,
-                function () {
-                  showToast("Launching " + title + "...");
-                },
-                function () {
+              // Try fallback Tizen IDs sequentially (NEVER navigate window.location to desktop websites)
+              var idx = 0;
+              function tryNextFallback() {
+                if (idx >= fallbackIds.length) {
+                  showToast(title + " is not installed on this TV. Press 'All Installed Apps' to see available apps.");
+                  return;
+                }
+                var candidateId = fallbackIds[idx++].trim();
+                if (!candidateId) return tryNextFallback();
+                try {
+                  tizen.application.launch(
+                    candidateId,
+                    function () {},
+                    function () {
+                      tryNextFallback();
+                    }
+                  );
+                } catch (e) {
                   tryNextFallback();
                 }
-              );
-            } catch (e) {
+              }
               tryNextFallback();
+            } else {
+              showToast(title + " is not installed on this TV.");
             }
           }
-          tryNextFallback();
-        } else if (webUrl) {
-          showToast("Opening " + title + "...");
-          window.open(webUrl, "_blank");
-        }
+        );
       }
 
       // 9. Switch TV Input Source (HDMI 1/2/3 or Live TV)
@@ -1397,11 +1430,20 @@
         modalOpen = true;
         modal.classList.add("open");
 
-        var itemsToRender = installedApps.length > 0 ? installedApps : [
-          { name: "TizenTube (via TizenBrew)", id: "xvvl3S1bvH.TizenBrewStandalone" },
-          { name: "Live TV Viewer", id: "org.tizen.tv-viewer" },
-          { name: "Samsung Internet Browser", id: "org.tizen.browser" }
+        var knownRestApps = [
+          { name: "Prime Video", id: "3201512006785", isRest: true },
+          { name: "Netflix", id: "11101200001", isRest: true },
+          { name: "Disney+", id: "3201901017640", isRest: true },
+          { name: "NOW TV", id: "3201603008746", isRest: true },
+          { name: "BBC iPlayer", id: "3201601007670", isRest: true },
+          { name: "Spotify", id: "3201606009684", isRest: true },
+          { name: "Rakuten TV", id: "3201511006428", isRest: true },
+          { name: "BBC News", id: "3201602007865", isRest: true },
+          { name: "Tubi TV", id: "3201504001965", isRest: true },
+          { name: "YouTube (Official)", id: "111299001912", isRest: true }
         ];
+
+        var itemsToRender = knownRestApps.concat(installedApps);
 
         for (var i = 0; i < itemsToRender.length; i++) {
           (function (app) {
@@ -1413,7 +1455,17 @@
               '<div class="installed-app-id">' + app.id + "</div>";
             btn.onclick = function () {
               showToast("Launching " + (app.name || app.id) + "...");
-              if (typeof tizen !== "undefined" && tizen.application) {
+              if (app.isRest) {
+                launchViaLocalRestApi(
+                  app.id,
+                  function () {},
+                  function () {
+                    if (typeof tizen !== "undefined" && tizen.application) {
+                      tizen.application.launch(app.id);
+                    }
+                  }
+                );
+              } else if (typeof tizen !== "undefined" && tizen.application) {
                 tizen.application.launch(app.id);
               }
             };
